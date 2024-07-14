@@ -37,19 +37,19 @@ app.get('/contacts', async (req, res) => {
     }
   });
 
-//   app.get('/contacts/:email', async (req, res) => {
-//     try {
-//       const { email } = req.params;
-//       const contact = await Contact.findOne({ email });
-//       if (contact) {
-//         res.status(200).json(contact);
-//       } else {
-//         res.status(404).json({ message: 'Contact not found' });
-//       }
-//     } catch (error) {
-//       res.status(500).json({ message: 'Error fetching contact', error });
-//     }
-//   });
+  app.get('/contacts/:email', async (req, res) => {
+    try {
+      const { email } = req.params;
+      const contact = await Contact.findOne({ email });
+      if (contact) {
+        res.status(200).json(contact);
+      } else {
+        res.status(404).json({ message: 'Contact not found' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Error fetching contact', error });
+    }
+  });
 
   app.post('/contacts', async (req, res) => {
     try {
