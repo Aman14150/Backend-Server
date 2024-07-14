@@ -1,34 +1,68 @@
+// app.js (or server.js)
+
+require('dotenv').config(); // Load environment variables from .env file
 const express = require('express');
-const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const app = express();
-const port = 5000;
+const PORT = process.env.PORT || 5000;
 
-app.use(cors());
-app.use(bodyParser.json());
+// Middleware
+app.use(express.json()); // Parse JSON bodies
+app.use(cors()); // Enable CORS
 
-let contacts = []; // In-memory data storage for example purposes
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch(err => console.error('MongoDB connection error:', err));
 
-// Route to get contacts
-app.get('/contacts', (req, res) => {
-  res.status(200).json({ data: contacts });
+// Define Contact schema and model
+const contactSchema = new mongoose.Schema({
+  name: String,
+  email: String,
+  phone: String,
 });
 
-// Route to add a new contact
-app.post('/contacts', (req, res) => {
-  const { name, email, phone } = req.body;
-  const newContact = { id: contacts.length + 1, name, email, phone };
-  contacts.push(newContact);
-  res.status(201).json({ message: 'Contact added successfully', data: newContact });
+const Contact = mongoose.model('contacts', contactSchema); // Collection name 'contacts'
+
+// Routes
+// Get all contacts
+app.get('/contacts', async (req, res) => {
+  try {
+    const contacts = await Contact.find();
+    res.status(200).json(contacts);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching contacts', error });
+  }
 });
 
-// Route to delete a contact
-app.delete('/contacts/:id', (req, res) => {
-  const { id } = req.params;
-  contacts = contacts.filter(contact => contact.id !== parseInt(id, 10));
-  res.status(200).json({ message: 'Contact deleted successfully' });
+// Add a new contact
+app.post('/contacts', async (req, res) => {
+    try {
+      const { name, email, phone } = req.body;
+      const newContact = new Contact({ name, email, phone });
+      await newContact.save();
+      res.status(201).json({ message: 'Contact added successfully', data: newContact });
+    } catch (error) {
+      res.status(500).json({ message: 'Error adding contact', error });
+    }
+  });
+
+// Delete a contact
+app.delete('/contacts/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Contact.findByIdAndDelete(id);
+    res.status(200).json({ message: 'Contact deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting contact', error });
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
