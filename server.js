@@ -1,4 +1,4 @@
-require('dotenv').config(); // Load environment variables from .env file
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -6,8 +6,8 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(express.json()); // Parse JSON bodies
-app.use(cors()); // Enable CORS
+app.use(express.json());
+app.use(cors());
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
@@ -24,7 +24,7 @@ const contactSchema = new mongoose.Schema({
   phone: String,
 });
 
-const Contact = mongoose.model('contacts', contactSchema); // Collection name 'contacts'
+const Contact = mongoose.model('contacts', contactSchema);
 
 // Routes
 // Get all contacts
