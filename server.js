@@ -52,12 +52,17 @@ app.post('/contacts', async (req, res) => {
 app.delete('/contacts/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    await Contact.findByIdAndDelete(id);
-    res.status(200).json({ message: 'Contact deleted successfully' });
+    const result = await Contact.findByIdAndDelete(id);
+    if (result) {
+      res.status(200).json({ message: 'Contact deleted successfully' });
+    } else {
+      res.status(404).json({ message: 'Contact not found' });
+    }
   } catch (error) {
     res.status(500).json({ message: 'Error deleting contact', error });
   }
 });
+
 
 // Update a contact
 app.put('/contacts/:id', async (req, res) => {
