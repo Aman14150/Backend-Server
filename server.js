@@ -25,7 +25,6 @@ const contactSchema = new mongoose.Schema({
 
 const Contact = mongoose.model('contacts', contactSchema);
 
-// Routes
 // Get all contacts
 app.get('/contacts', async (req, res) => {
   try {
@@ -40,6 +39,11 @@ app.get('/contacts', async (req, res) => {
 app.post('/contacts', async (req, res) => {
     try {
       const { name, email, phone } = req.body;
+      // Check if email already exists
+      const existingContact = await Contact.findOne({ email });
+      if (existingContact) {
+        return res.status(400).json({ error: 'DuplicateEmail', message: 'Email already exists' });
+      }
       const newContact = new Contact({ name, email, phone });
       await newContact.save();
       res.status(201).json({ message: 'Contact added successfully', data: newContact });
